@@ -36,8 +36,7 @@ module Api
       # POST /api/v1/employees
       def create
         params_with_company = employee_params.merge(
-          company_id: current_user.company_id,
-          created_by: current_user.id
+          company_id: current_user.company_id
         )
         
         result = EmployeeViewModel.create_with_credentials(params_with_company)
@@ -116,14 +115,14 @@ module Api
       end
       
       def employee_params
-        params.require(:employee).permit(
-          :name, :dni, :job_position, :hourly_salary, :hourly_deduction
+        params.permit(
+          :name, :dni, :email, :phone, :job_position, :salary
         )
       end
       
       def employee_update_params
-        params.require(:employee).permit(
-          :name, :dni, :job_position, :hourly_salary, :hourly_deduction, :is_active
+        params.permit(
+          :name, :dni, :email, :phone, :job_position, :salary, :is_active
         )
       end
     end

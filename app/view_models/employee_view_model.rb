@@ -76,10 +76,10 @@ class EmployeeViewModel
       id: employee.id,
       name: employee.name,
       dni: employee.dni,
+      email: employee.email,
+      phone: employee.phone,
       job_position: employee.job_position,
-      hourly_salary: employee.hourly_salary,
-      hourly_deduction: employee.hourly_deduction,
-      late_count: employee.late_count,
+      salary: employee.salary,
       is_active: employee.is_active,
       company_id: employee.company_id
     }

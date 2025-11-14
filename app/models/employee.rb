@@ -2,20 +2,19 @@
 #
 # Table name: employees
 #
-#  id                :uuid             not null, primary key
-#  company_id        :uuid             not null
-#  name              :string           not null
-#  dni               :string           not null
-#  job_position      :string           not null
-#  pin_hash          :string           not null
-#  password_hash     :string
-#  hourly_salary     :decimal(10, 2)   default(0.0)
-#  hourly_deduction  :decimal(10, 2)   default(0.0)
-#  late_count        :integer          default(0)
-#  is_active         :boolean          default(TRUE)
-#  created_by        :uuid
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
+#  id               :uuid             not null, primary key
+#  company_id       :uuid             not null
+#  name             :string           not null
+#  dni              :string           not null
+#  phone            :string
+#  email            :string
+#  job_position     :string
+#  salary           :decimal(10, 2)
+#  pin_hash         :string           not null
+#  password_digest  :string           not null
+#  is_active        :boolean          default(TRUE)
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
 #
 
 class Employee < ApplicationRecord
@@ -27,15 +26,13 @@ class Employee < ApplicationRecord
   has_many :payroll_calculations, dependent: :destroy
   
   # Secure password
-  has_secure_password validations: false
+  has_secure_password
   
   # Validations
   validates :name, presence: true
-  validates :dni, presence: true, uniqueness: true
-  validates :job_position, presence: true
+  validates :dni, presence: true, uniqueness: { scope: :company_id }
   validates :pin_hash, presence: true
-  validates :hourly_salary, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
-  validates :hourly_deduction, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+  validates :salary, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   
   # Callbacks
   before_validation :hash_pin, if: -> { @pin.present? }
@@ -46,15 +43,11 @@ class Employee < ApplicationRecord
   scope :search, ->(query) { where("name ILIKE ? OR dni ILIKE ?", "%#{query}%", "%#{query}%") }
   
   # Virtual attributes
-  attr_accessor :pin, :plain_password
+  attr_accessor :pin
   
   # Instance methods
   def verify_pin(pin)
     BCrypt::Password.new(pin_hash) == pin
-  end
-  
-  def increment_late_count!
-    increment!(:late_count)
   end
   
   # Class methods

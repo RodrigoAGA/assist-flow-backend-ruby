@@ -10,8 +10,6 @@ module Api
         profile = Profile.new(profile_params.merge(company: company))
         
         if company.save && profile.save
-          company.update(created_by: profile.id)
-          
           token = JsonWebToken.encode({ id: profile.id, type: 'admin' })
           
           render_success({
@@ -19,9 +17,8 @@ module Api
             token: token,
             user: {
               id: profile.id,
-              name: profile.name,
+              name: profile.full_name,
               email: profile.email,
-              role: profile.user_role,
               company_id: company.id,
               company_name: company.name
             }
@@ -43,9 +40,8 @@ module Api
             token: token,
             user: {
               id: profile.id,
-              name: profile.name,
+              name: profile.full_name,
               email: profile.email,
-              role: profile.user_role,
               company_id: profile.company_id,
               company_name: profile.company&.name
             }
@@ -89,9 +85,8 @@ module Api
             type: 'admin',
             user: {
               id: current_user.id,
-              name: current_user.name,
+              name: current_user.full_name,
               email: current_user.email,
-              role: current_user.user_role,
               company_id: current_user.company_id,
               company_name: current_user.company&.name
             }
@@ -120,13 +115,12 @@ module Api
       private
       
       def profile_params
-        params.require(:profile).permit(:name, :email, :password, :user_role)
+        params.require(:profile).permit(:full_name, :email, :password)
       end
       
       def company_params
         params.require(:company).permit(
-          :name, :expected_start_time, :expected_end_time,
-          :lunch_start_time, :lunch_end_time
+          :name, :work_start_time, :work_end_time, :late_threshold_minutes
         )
       end
     end
